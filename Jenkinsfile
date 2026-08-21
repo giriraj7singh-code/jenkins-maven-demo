@@ -20,17 +20,27 @@ pipeline {
             }
         }
 
-        stage('Build') {
+        stage('Build & Test') {
             steps {
                 echo "Building for ${params.ENVIRONMENT}"
                 sh 'mvn clean package'
             }
         }
 
+        stage('Docker Build') {
+            steps {
+                echo "Building Docker image..."
+                sh 'docker build -t jenkins-maven-demo:${BUILD_NUMBER} .'
+            }
+        }
+
         stage('Deploy') {
             steps {
                 echo "Deploying to ${params.ENVIRONMENT}"
-                sh 'cp target/*.jar /opt/deployed-app/'
+                sh '''
+                    docker rm -f jenkins-maven-app || true
+                    docker run -d --name jenkins-maven-app jenkins-maven-demo:${BUILD_NUMBER}
+                '''
             }
         }
     }
