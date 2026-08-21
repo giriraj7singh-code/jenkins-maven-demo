@@ -1,53 +1,24 @@
 pipeline {
     agent any
 
-    parameters {
-        choice(
-            name: 'ENVIRONMENT',
-            choices: ['dev', 'production'],
-            description: 'Select deployment environment'
-        )
-    }
-
     stages {
 
-        stage('Environment Info') {
+        stage('Build') {
             steps {
-                echo "Job Name: ${env.JOB_NAME}"
-                echo "Build Number: ${env.BUILD_NUMBER}"
-                echo "Workspace: ${env.WORKSPACE}"
-                echo "Build URL: ${env.BUILD_URL}"
+                sh 'mvn clean package'
             }
         }
 
-        stage('Build & Test') {
+        stage('Test') {
             steps {
-                echo "Building for ${params.ENVIRONMENT}"
-                sh 'mvn clean package'
+                sh 'mvn test'
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo "Building Docker image..."
-                sh 'docker build -t jenkins-maven-demo:${BUILD_NUMBER} .'
+                sh 'docker build -t jenkins-maven-demo:1.0 .'
             }
-        }
-
-        stage('Deploy') {
-            steps {
-                echo "Deploying to ${params.ENVIRONMENT}"
-                sh '''
-                    docker rm -f jenkins-maven-app || true
-                    docker run -d --name jenkins-maven-app jenkins-maven-demo:${BUILD_NUMBER}
-                '''
-            }
-        }
-    }
-
-    post {
-        always {
-            archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
         }
     }
 }
