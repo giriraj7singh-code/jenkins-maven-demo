@@ -22,8 +22,8 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Build and Test with Maven
-        run: mvn clean test
+      - name: Build and Package with Maven
+        run: mvn clean package
 
       - name: Build Docker Image
         run: docker build -t jenkins-maven-demo:${{ github.run_number }} .
