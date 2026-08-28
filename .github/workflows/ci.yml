@@ -27,3 +27,15 @@ jobs:
 
       - name: Build Docker Image
         run: docker build -t jenkins-maven-demo:${{ github.run_number }} .
+      
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Tag Docker Image
+        run: docker tag jenkins-maven-demo:${{ github.run_number }} girirajs7/jenkins-maven-demo:${{ github.run_number }}
+
+      - name: Push Docker Image
+        run: docker push girirajs7/jenkins-maven-demo:${{ github.run_number }}
