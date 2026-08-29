@@ -19,5 +19,8 @@ spec:
       containers:
         - name: jenkins-maven-demo
           image: girirajs7/jenkins-maven-demo:2.0
-          ports:
-            - containerPort: 8080
+          command: ["/bin/sh", "-c"]
+          args:
+            - |
+              java -jar /app/app.jar
+              sleep infinity
